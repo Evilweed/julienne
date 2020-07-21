@@ -1,43 +1,75 @@
 {
   "indexes": [
     {
-      "collectionGroup": "relations",
+      "collectionGroup": "testcases",
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "toUserId",
-          "order": "ASCENDING"
+          "fieldPath": "ciPipelineID",
+          "order": "DESCENDING"
         },
         {
-          "fieldPath": "confirmed",
+          "fieldPath": "sortName",
           "order": "ASCENDING"
         }
       ]
     },
     {
-      "collectionGroup": "recipes",
+      "collectionGroup": "testcases",
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "userId",
+          "fieldPath": "ciPipelineID",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "updatedAt",
+          "fieldPath": "sortName",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "testcases",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "ciPipelineID",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "sortName",
           "order": "DESCENDING"
         }
       ]
     },
     {
-      "collectionGroup": "relations",
+      "collectionGroup": "testcases",
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "fromUserId",
+          "fieldPath": "retryCount",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "confirmed",
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "testcases",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
           "order": "ASCENDING"
         }
       ]
