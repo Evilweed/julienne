@@ -30,7 +30,7 @@ import {RetryCount} from './common/RetryCount';
 import {CodeBlock} from './common/CodeBlock';
 import IconButton from '@material-ui/core/IconButton/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
-import {useLocation} from 'wouter';
+import {useLocation, useRoute} from 'wouter';
 import {db, updateTestCase, updateTestRun} from './db';
 import {Link, Search} from '@material-ui/icons';
 import {useState, useEffect} from 'react';
@@ -96,6 +96,7 @@ export const EvaluationModal: React.FunctionComponent<EvaluationModalProps> = ({
   let gitlabVideoPath;
   let gitlabScreenshotPath;
   let gitlabTerminalOutputPath;
+  const [isPipelineRoute, params] = useRoute('/pipeline/:ciPipelineID/:testCaseID?');
 
   const {value: testcaseDoc, loading, error} = useDocument(
     firebase.firestore().collection('testcases').doc(id),
@@ -135,7 +136,14 @@ export const EvaluationModal: React.FunctionComponent<EvaluationModalProps> = ({
   };
 
   const displayIssueRow: boolean = retriesCount > 0;
-  const onClick = () => setLocation('/main/');
+
+  const onClickClose = e => {
+    e.preventDefault();
+    if (isPipelineRoute) {
+      return setLocation(`/pipeline/${params.ciPipelineID}/`);
+    }
+    setLocation('/main/');
+  };
 
   const createdAt = testcaseDoc.get('createdAt');
   const s3ArtifactUrls = testcaseDoc.get('artifactsUrls');
@@ -168,12 +176,17 @@ export const EvaluationModal: React.FunctionComponent<EvaluationModalProps> = ({
     }
   };
 
+  const renderCreatedAt = () => {
+    const date = new Date(createdAt).toLocaleString();
+    return <>{`${date}`}</>;
+  };
+
   if (testcaseDoc) {
     return (
       <div>
         <Card className={classes.root}>
           <CardContent>
-            <IconButton onClick={onClick} className={classes.closeModalButton} size='small'>
+            <IconButton onClick={onClickClose} className={classes.closeModalButton} size='small'>
               <CloseIcon fontSize='inherit' />
             </IconButton>
             <ListItem>
@@ -197,6 +210,7 @@ export const EvaluationModal: React.FunctionComponent<EvaluationModalProps> = ({
                     {/*{renderRow('Retries', <RetryCount count={testcaseDoc.get('retryCount')} />)}*/}
                     {renderRow('Retries', <RetryCount count={`${retriesCount}`} />)}
                     {renderRow('File path', testcaseDoc.get('path'))}
+                    {renderRow('Created at', renderCreatedAt())}
                     {renderRow('Execution times', executionTimes())}
                     {renderRow('Misc times', miscTimes())}
                     {displayIssueRow &&
@@ -222,12 +236,13 @@ export const EvaluationModal: React.FunctionComponent<EvaluationModalProps> = ({
                 </Paper>
               ) : null}
             </div>
+            <TestRunTable testcaseDoc={testcaseDoc} />
             {terminalOutputUrl() ? <TerminalOutput url={terminalOutputUrl()} /> : null}
             <CodeBlock code={commandsToRunTestLocally(testcaseDoc)} language='bash' />
             {debugEnabled ? (
               <CodeBlock code={JSON.stringify(testcaseDoc.data(), null, 2)} language='json' />
             ) : null}
-            <TestRunTable testcaseDoc={testcaseDoc} />
+
             {/*<Button*/}
             {/*size='small'*/}
             {/*variant='contained'*/}
@@ -431,6 +446,7 @@ export const TestRunTable: React.FunctionComponent<IssueSectionProps> = ({testca
           {renderRow('Commit', testRunDoc.get('commitTitle'))}
           {renderRow('Branch', testRunDoc.get('branch'))}
           {renderRow('Sha', testRunDoc.get('commitSha'))}
+          {renderRow('Triggered by', testRunDoc.get('triggeredBy'))}
           <TableRow key='exclude-type'>
             <TableCell component='th' scope='row'>
               Exclude type

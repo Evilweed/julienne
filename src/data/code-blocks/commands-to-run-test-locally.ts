@@ -4,7 +4,7 @@ export const commandsToRunTestLocally = (testcaseDoc: firebase.firestore.Documen
 yarn install
 
 yarn test \\
-  --file "${testcaseDoc.get('path')}" \\
+  --path "${testcaseDoc.get('path')}" \\
   --fixture "${testcaseDoc.get('fixture')}" \\
-  --test "${testcaseDoc.get('name')}"
+  --name "${testcaseDoc.get('name')}"
 `;

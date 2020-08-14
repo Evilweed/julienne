@@ -3,7 +3,7 @@ import debug from 'debug';
 import {Link, useRoute, useLocation} from 'wouter';
 import {Result} from './enums/Result';
 import makeStyles from '@material-ui/core/styles/makeStyles';
-import {Theme} from '@material-ui/core';
+import {Theme, Card} from '@material-ui/core';
 import {green, red, orange, grey} from '@material-ui/core/colors';
 import {db} from './db';
 import Typography from '@material-ui/core/Typography/Typography';
@@ -13,7 +13,7 @@ import CircularProgress from '@material-ui/core/CircularProgress/CircularProgres
 import Button from '@material-ui/core/Button/Button';
 import Tooltip from '@material-ui/core/Tooltip/Tooltip';
 import {useEffect} from 'react';
-import {useCollection} from 'react-firebase-hooks/firestore';
+import {useCollection, useDocument} from 'react-firebase-hooks/firestore';
 import {proxy} from 'comlink';
 
 const log = debug('app:TestRun');
@@ -137,8 +137,10 @@ export const TestRun: React.FunctionComponent<TestRunProps> = ({id}) => {
 
         <List>
           {!itemsData && <CircularProgress size={16} thickness={4} />}
-          {itemsData.map(testCase => (
+          {itemsData.map((testCase, index) => (
             <TestCaseGridItem
+              index={index}
+              pipelineId={id}
               key={testCase.id}
               id={testCase.id}
               testCase={testCase}
@@ -153,22 +155,41 @@ export const TestRun: React.FunctionComponent<TestRunProps> = ({id}) => {
 };
 
 interface TestCaseGridItemProps {
+  pipelineId: string;
+  index: number;
   id: string;
   testCase: TestCase;
   hovered: boolean;
   setHovered;
 }
 
-export function TestCaseGridItem({id, testCase, hovered, setHovered}: TestCaseGridItemProps) {
+export function TestCaseGridItem({
+  pipelineId,
+  index,
+  id,
+  testCase,
+  hovered,
+  setHovered,
+}: TestCaseGridItemProps) {
   const classes = useStyles();
 
   if (!testCase || !testCase.id) {
     return <CircularProgress size={16} thickness={4} />;
   }
 
+  const {value: testRunDoc, loading, error} = useDocument(
+    db.collection('testruns').doc(pipelineId),
+  );
+
   const href = `/main/${id}`;
   const [isActive] = useRoute(href);
+  const [isPipelineRoute, params] = useRoute('/pipeline/:ciPipelineID/:testCaseID?');
+
+  if (isPipelineRoute) {
+    setHovered(true);
+  }
   const [, setLocation] = useLocation();
+
   const retried = testCase.executionTimes.length > 1; // TODO(m) remove true after demo
   //console.log(`${id} = ${testCase.issueReported}`);
   const resultClass = isActive
@@ -194,11 +215,114 @@ export function TestCaseGridItem({id, testCase, hovered, setHovered}: TestCaseGr
 
   const onClick = async e => {
     e.preventDefault();
+    if (isPipelineRoute) {
+      return setLocation(`/pipeline/${params.ciPipelineID}/${id}`);
+    }
     setLocation(href);
   };
 
+  const triggeredBy = () => `👤 ${testRunDoc.get('triggeredBy')}`.replace('@packhelp.com', '');
+  const commitTitle = () => `🔖 ${testRunDoc.get('commitTitle')}`;
+  const createdAtDateTime = () => `📅 ${new Date(testRunDoc.get('createdAt')).toLocaleString()}`;
+  const backgroundColor = '#ffffff';
+
   return (
     <Container className={classes.wrapper}>
+      {index === 0 && !loading && hovered ? (
+        <Card
+          elevation={3}
+          variant='outlined'
+          style={{
+            position: 'absolute',
+            top: '-60px',
+            margin: 0,
+            borderRadius: '4px',
+            borderColor: 'black',
+            padding: '3px',
+            color: 'black',
+            zIndex: 9999999,
+            display: 'flex',
+            flexDirection: 'column',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          <div
+            style={{
+              display: 'inline-block',
+            }}
+          >
+            <Typography
+              variant='caption'
+              style={{
+                margin: 0,
+                backgroundColor: backgroundColor,
+                borderRadius: '4px',
+                padding: '3px',
+                paddingLeft: '7px',
+                marginBottom: '3px',
+                marginRight: '3px',
+                display: 'inline-block',
+                minWidth: '200px',
+              }}
+            >
+              {createdAtDateTime()}
+            </Typography>
+            <Typography
+              variant='caption'
+              style={{
+                margin: 0,
+                backgroundColor: backgroundColor,
+                borderRadius: '4px',
+                padding: '3px',
+                paddingLeft: '7px',
+                marginBottom: '3px',
+                marginRight: '3px',
+                display: 'inline-block',
+              }}
+            >
+              {commitTitle()}
+            </Typography>
+          </div>
+          <div
+            style={{
+              display: 'inline-block',
+            }}
+          >
+            <Typography
+              variant='caption'
+              style={{
+                margin: 0,
+                backgroundColor: backgroundColor,
+                borderRadius: '4px',
+                padding: '3px',
+                paddingLeft: '7px',
+                marginBottom: '3px',
+                marginRight: '3px',
+                display: 'inline-block',
+                minWidth: '200px',
+              }}
+            >
+              {triggeredBy()}
+            </Typography>
+            <Typography
+              variant='caption'
+              style={{
+                margin: 0,
+                backgroundColor: backgroundColor,
+                borderRadius: '4px',
+                padding: '3px',
+                paddingLeft: '7px',
+                marginBottom: '3px',
+                marginRight: '3px',
+                display: 'inline-block',
+              }}
+            >
+              🔗 {testRunDoc.get('branch')}
+            </Typography>
+          </div>
+        </Card>
+      ) : null}
+
       <Tooltip
         id={id}
         arrow

@@ -12,6 +12,7 @@ import CircularProgress from '@material-ui/core/CircularProgress/CircularProgres
 import ReactNotification from 'react-notifications-component';
 import 'react-notifications-component/dist/theme.css';
 import {TestSuiteManagement} from './TestSuiteManagement';
+import {SingleTestRun} from "./SingleTestRun";
 
 if (process.env.NODE_ENV !== 'production' && false) {
   const {whyDidYouUpdate} = require('why-did-you-update');
@@ -70,6 +71,7 @@ function App() {
         <Helmet titleTemplate='%s | Packhelp Eye' defaultTitle='Packhelp Eye' />
         <Route path='/login' component={Login} />
         <PrivateRoute path='/main/:rest*' component={Main} />
+        <PrivateRoute path='/pipeline/:rest*' component={SingleTestRun} />
         <PrivateRoute path='/stats/:rest*' component={Stats} />
         <PrivateRoute path='/testSuiteManagement/:rest*' component={TestSuiteManagement} />
         {rootPath && !user && <Redirect to='/login' />}

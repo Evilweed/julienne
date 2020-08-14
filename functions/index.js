@@ -1,5 +1,6 @@
 const request = require('request');
 
+const sendMetric = require('./send-metric').sendMetric;
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const bodyParser = require('body-parser');
@@ -70,6 +71,23 @@ function createUserProfile(userId, user) {
   });
 }
 
+const generateHourlyStats = async () => {
+  const oneHourInMilliseconds = 1000 * 60 * 60 * 1;
+  const stats = await generateStatsInTimeframe('hourly', oneHourInMilliseconds);
+  console.log(JSON.stringify(stats, null, 2));
+  let unstablePercentage;
+  if (stats.retriedCount === 0 || stats.failedCount + stats.passedCount === 0) {
+    unstablePercentage = 0;
+  } else {
+    unstablePercentage = (stats.retriedCount / (stats.passedCount + stats.failedCount)) * 100;
+  }
+
+  await sendMetric(`ci.e2e.results`, ['passed'], stats.passedCount);
+  await sendMetric(`ci.e2e.results`, ['failed'], stats.failedCount);
+  await sendMetric(`ci.e2e.results`, ['unstable'], stats.retriedCount);
+  await sendMetric(`ci.e2e.results`, ['unstablePercentage'], unstablePercentage);
+};
+
 const generateDailyStats = async () => {
   const oneDayInMilliseconds = 1000 * 60 * 60 * 24 * 1;
   const stats = await generateStatsInTimeframe('daily', oneDayInMilliseconds);
@@ -123,14 +141,16 @@ const generateStatsInTimeframe = async (statRangeName, timeRangeInMilliseconds) 
   const currentDay = today.getDate() < 10 ? `0${today.getDate()}` : today.getDate();
   const id = `${today.getFullYear()}-${currentMonth}-${currentDay}`;
 
-  await admin
-    .firestore()
-    .collection(`${statRangeName}Stats`)
-    .doc(id)
-    .set(stats)
-    .catch(error => {
-      throw new Error(error);
-    });
+  if (statRangeName !== 'hourly') {
+    await admin
+      .firestore()
+      .collection(`${statRangeName}Stats`)
+      .doc(id)
+      .set(stats)
+      .catch(error => {
+        throw new Error(error);
+      });
+  }
 
   console.log(stats);
   return stats;
@@ -177,6 +197,7 @@ app.get('/stats', generateTotalStats);
 
 exports.triggerTotalStatsGeneration = fn.pubsub.schedule('00 * * * *').onRun(generateTotalStats);
 exports.triggerDailyStatsGeneration = fn.pubsub.schedule('00 23 * * *').onRun(generateDailyStats);
+exports.triggerHourlyStatsGeneration = fn.pubsub.schedule('00 * * * *').onRun(generateHourlyStats);
 exports.triggerWeeklyStatsGeneration = fn.pubsub.schedule('00 23 * * 0').onRun(generateWeeklyStats);
 
 app.post('/testCase', jsonParser, async (req, res) => {
