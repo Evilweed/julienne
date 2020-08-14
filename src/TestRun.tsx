@@ -240,7 +240,7 @@ export function TestCaseGridItem({
             borderColor: 'black',
             padding: '3px',
             color: 'black',
-            zIndex: 9999999,
+            zIndex: 99,
             display: 'flex',
             flexDirection: 'column',
             whiteSpace: 'nowrap',

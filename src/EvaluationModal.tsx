@@ -52,7 +52,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     position: 'absolute',
     top: theme.spacing(10),
     right: theme.spacing(1),
-    zIndex: 999,
+    zIndex: 9999999,
   },
   closeModalButton: {
     position: 'absolute',
