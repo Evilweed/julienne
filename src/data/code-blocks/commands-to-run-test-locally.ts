@@ -1,10 +1,12 @@
-export const commandsToRunTestLocally = (testcaseDoc: firebase.firestore.DocumentSnapshot) =>
-  `cd e2e-tests
+export const commandsToRunTestLocally = (testcaseDoc: firebase.firestore.DocumentSnapshot) => {
+  const path = `${testcaseDoc.get('path')}`.replace('.js', '.ts');
+  return `cd e2e-tests
 
 yarn install
 
 yarn test \\
-  --path "${testcaseDoc.get('path')}" \\
+  --path "${path}" \\
   --fixture "${testcaseDoc.get('fixture')}" \\
   --name "${testcaseDoc.get('name')}"
 `;
+};
