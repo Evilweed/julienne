@@ -41,6 +41,7 @@
     "lodash.sortby": "^4.7.0",
     "mobx": "^5.15.4",
     "mobx-react": "^6.2.2",
+    "moment": "^2.27.0",
     "react": "^16.8.6",
     "react-ansi": "^1.8.1",
     "react-date-range": "^1.0.3",

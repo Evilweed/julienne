@@ -206,7 +206,7 @@ app.post('/testCase', jsonParser, async (req, res) => {
     const data = req.body;
     const testRun = data.testRun;
     testRun.excluded = false;
-    testRun.createdAt = Date.now();
+    testRun.updatedAt = Date.now();
     let tests = data.tests;
     tests = tests.map(test => {
       test.sortName = `${test.path}${test.fixture}${test.name}`;
@@ -229,7 +229,7 @@ app.post('/testCase', jsonParser, async (req, res) => {
       .firestore()
       .collection('testruns')
       .doc(testRun.ciPipelineID)
-      .set(testRun)
+      .set(testRun, {merge: true})
       .catch(error => {
         throw new Error(error);
       });
@@ -324,6 +324,12 @@ function indexEntry(entry) {
     },
   );
 }
+
+exports.onTestRunCreated = functions.firestore
+  .document('testruns/{testRunId}')
+  .onCreate(async snap => {
+    await snap.ref.set({createdAt: Date.now()}, {merge: true});
+  });
 
 exports.onTestcaseCreatedStoreUnique = functions.firestore
   .document('testcases/{testcaseId}')

@@ -1,14 +1,15 @@
 import * as React from 'react';
 import {useSession, signOut} from './auth/auth';
 import {EvaluationModal} from './EvaluationModal';
-import {Link, useRoute} from 'wouter';
+import {useRoute} from 'wouter';
 import {allowedUser} from './auth/allowed-user';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import {Theme, Button} from '@material-ui/core';
-import {TestRuns} from './TestRuns';
 import {MainProps} from './Main';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import {useLocation} from 'wouter';
+import {TestRun} from './TestRun';
+import {DebugLinks} from './common/DebugLinks';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {},
@@ -18,7 +19,9 @@ export const SingleTestRun: React.FunctionComponent<MainProps> = () => {
   const classes = useStyles();
 
   const user = useSession();
-  const [, params] = useRoute('/pipeline/:ciPipelineID/:testCaseID?');
+  const [isPipelineTestRunPath, pipelinesUrlParams] = useRoute(
+    '/pipeline/:ciPipelineID/:testCaseID?',
+  );
   const [, setLocation] = useLocation();
 
   if (!allowedUser(user)) {
@@ -32,18 +35,21 @@ export const SingleTestRun: React.FunctionComponent<MainProps> = () => {
 
   return (
     <div>
-      <div style={{height: '140px'}}>
+      <div style={{height: '180px'}}>
         <Button
           onClick={onClickBackToMain}
           variant='contained'
           color='secondary'
           startIcon={<ArrowBackIcon />}
+          style={{marginBottom: '10px'}}
         >
           Back to main view
         </Button>
+        <DebugLinks pipelineRunID={pipelinesUrlParams.ciPipelineID} />
       </div>
-      {params.testCaseID && <Overlay id={params.testCaseID} />}
-      <TestRuns testRunsCount={1} searchedTestRuns={null} key='test-runs' />
+
+      {pipelinesUrlParams.testCaseID && <Overlay id={pipelinesUrlParams.testCaseID} />}
+      <TestRun key={pipelinesUrlParams.ciPipelineID} id={pipelinesUrlParams.ciPipelineID} />
     </div>
   );
 };

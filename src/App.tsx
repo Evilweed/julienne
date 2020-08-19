@@ -12,7 +12,7 @@ import CircularProgress from '@material-ui/core/CircularProgress/CircularProgres
 import ReactNotification from 'react-notifications-component';
 import 'react-notifications-component/dist/theme.css';
 import {TestSuiteManagement} from './TestSuiteManagement';
-import {SingleTestRun} from "./SingleTestRun";
+import {SingleTestRun} from './SingleTestRun';
 
 if (process.env.NODE_ENV !== 'production' && false) {
   const {whyDidYouUpdate} = require('why-did-you-update');
