@@ -19,9 +19,7 @@ export const SingleTestRun: React.FunctionComponent<MainProps> = () => {
   const classes = useStyles();
 
   const user = useSession();
-  const [isPipelineTestRunPath, pipelinesUrlParams] = useRoute(
-    '/pipeline/:ciPipelineID/:testCaseID?',
-  );
+  const [isPipelineTestRunPath, pipelinesUrlParams] = useRoute('/pipeline/:ciPipelineID/:testCaseID?');
   const [, setLocation] = useLocation();
 
   if (!allowedUser(user)) {
@@ -35,14 +33,8 @@ export const SingleTestRun: React.FunctionComponent<MainProps> = () => {
 
   return (
     <div>
-      <div style={{height: '180px'}}>
-        <Button
-          onClick={onClickBackToMain}
-          variant='contained'
-          color='secondary'
-          startIcon={<ArrowBackIcon />}
-          style={{marginBottom: '10px'}}
-        >
+      <div style={{paddingBottom: '80px'}}>
+        <Button onClick={onClickBackToMain} variant='contained' startIcon={<ArrowBackIcon />} style={{marginBottom: '30px'}}>
           Back to main view
         </Button>
         <DebugLinks pipelineRunID={pipelinesUrlParams.ciPipelineID} />

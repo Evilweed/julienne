@@ -115,7 +115,7 @@ export const EvaluationModal: React.FunctionComponent<EvaluationModalProps> = ({
     return null;
   }
 
-  const ciJobURL = Url.ci.job(testcaseDoc.get('ciJobID'));
+  const ciJobURL = Url.ci.pipeline(testcaseDoc.get('ciPipelineID'));
 
   const retriesCount = testcaseDoc.get('executionTimes').length - 1;
 
@@ -341,7 +341,7 @@ export const IssueSection: React.FunctionComponent<IssueSectionProps> = ({testca
   };
 
   const copyInstabilityTestReportToClipboard = () => {
-    const ciJobURL = Url.ci.job(testcaseDoc.get('ciJobID'));
+    const ciJobURL = Url.ci.pipeline(testcaseDoc.get('ciPipelineID'));
 
     copy(instabilityTestReportDescription(testcaseDoc, ciJobURL));
   };
