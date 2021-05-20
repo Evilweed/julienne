@@ -73,7 +73,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy": "yarn run build && firebase deploy --only hosting"
+    "deploy": "yarn run build && firebase deploy",
+    "deploy-hosting": "yarn run build && firebase deploy --only hosting"
   },
   "prettier": {
     "arrowParens": "avoid",
