@@ -76,7 +76,7 @@ export const DebugLinks: React.FunctionComponent<RetryCountProps> = ({pipelineRu
     return null;
   }
 
-  const sentryEnv = serverName === 'ph-staging-app' ? 'staging' : `dev-${serverName.replace('-ph-dev-app')}`;
+  const sentryEnv = serverName === 'ph-staging-app' ? 'staging' : `dev-${serverName.replace('-ph-dev-app', '')}`;
   const herokuAppName = serverName;
 
   const startTimeForSentry = moment(new Date(createdAt), 'YYYY-MM-DDTHH:mm').subtract('10', 'minutes').toISOString();
